@@ -11,6 +11,20 @@
   </head>
 
   <body>
-    {{{body}}}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="/">carbo</a>
+      <form class="form-inline" method="post" action="/search">
+        <div class="input-group">
+          <input id="search" class="form-control" name="q" placeholder="search">
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="submit">go</button>
+          </div>
+        </div>
+      </form>
+    </nav>
+
+    <div class="continer-fluid">
+      {{{body}}}
+    <div>
   </body>
 </html>

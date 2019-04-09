@@ -1,6 +1,20 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var app = express();
 var handlebars = require('express-handlebars').create({ defaultLayout: 'main' });
+
+var mongoUri = process.env.MONGOLAB_URI ||
+               process.env.MONGOHQ_URL ||
+               'mongodb://localhost/HelloMongoose';
+
+mongoose.connect(mongoUri, function (err, res) {
+  if ( err ) {
+    console.log('error connecting to: ' + mongoUri + '. ' + err);
+  } else {
+    console.log('connected to: ' + mongoUri + '.');
+  }
+});
+
 
 app.engine('handlebars', handlebars.engine);
 
@@ -27,6 +41,7 @@ app.use(function (err, req, res, next) {
 });
 
 
+// run the app
 app.listen(app.get('port'), function () {
   console.log( 'app started on port ' + app.get('port') +
     '; press Ctrl-C to terminate.' );
