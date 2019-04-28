@@ -1,0 +1,25 @@
+<div class="container-fluid">
+  <header>
+    <a href="/items">
+      back to recently updated items
+    </a>
+  </header>
+  <div>
+    <h1>
+      {{name}}
+      <a href="/items/{{id}}/edit">
+        <button class="btn btn-outline-secondary">edit</button>
+      </a>
+    </h1>
+    <h2>{{brand}}</h2>
+    {{servingSize}}
+    {{servingSizeUnit}}
+    {{servingSizeWeight}}
+    {{carbs}}
+    {{sugars}}
+    {{protein}}
+    {{notes}}
+    {{createdAt}}
+    {{updatedAt}}
+  </div>
+</div>

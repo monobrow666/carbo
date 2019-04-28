@@ -1,0 +1,72 @@
+<div class="container-fluid">
+  {{#if id}}
+    <a href="/items/{{id}}">
+      back to {{brand}} {{name}}
+    </a>
+  {{/if}}
+  <form method="post">
+    <div class="form-group">
+      <label for="brand">brand</label>
+      <input class="form-control" id="brand" name="brand" value="{{brand}}" placeholder="brand">
+    </div>
+    <div class="form-group">
+      <label for="name">name</label>
+      <input class="form-control" id="name" name="name" value="{{name}}" placeholder="name" required>
+    </div>
+    <div class="form-group">
+      <label for="serving_size">serving size</label>
+      <input class="form-control" id="serving_size" name="serving_size" value="{{servingSize}}" type="number" min="0" placeholder="serving size" required>
+    </div>
+    <div class="form-group">
+      <label for="serving_size_unit">serving size unit</label>
+      <select class="form-control" id="serving_size_unit" name="serving_size_unit" required>
+        <option value="grams" {{#if isUnitGrams}} selected {{/if}}>grams</option>
+        <option value="ounces" {{#if isUnitOunces}} selected {{/if}}>ounces</option>
+        <option value="cups" {{#if isUnitCups}} selected {{/if}}>cups</option>
+        <option value="liters" {{#if isUnitLiters}} selected {{/if}}>liters</option>
+        <option value="pieces" {{#if isUnitPieces}} selected {{/if}}>pieces</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="serving_size_weight">serving size weight</label>
+      <div class="input-group">
+        <input class="form-control" id="serving_size_weight" name="serving_size_weight" value="{{servingSizeWeight}}" type="number" min="0" placeholder="serving size weight" required>
+        <div class="input-group-append">
+          <span class="input-group-text">grams</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="carbs">carbs</label>
+      <div class="input-group">
+        <input class="form-control" id="carbs" name="carbs" value="{{carbs}}" type="number" min="0" placeholder="carbs" required>
+        <div class="input-group-append">
+          <span class="input-group-text">grams</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="sugars">sugars</label>
+      <div class="input-group">
+        <input class="form-control" id="sugars" name="sugars" value="{{sugars}}" type="number" min="0" placeholder="sugars">
+        <div class="input-group-append">
+          <span class="input-group-text">grams</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="protein">protein</label>
+      <div class="input-group">
+        <input class="form-control" id="protein" name="protein" value="{{protein}}" type="number" min="0" placeholder="protein">
+        <div class="input-group-append">
+          <span class="input-group-text">grams</span>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="notes">notes</label>
+      <textarea class="form-control" id="notes" name="notes" placeholder="notes">{{notes}}</textarea>
+    </div>
+    <button class="btn btn-primary" type="submit">save</button>
+  </form>
+</div>

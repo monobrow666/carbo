@@ -1,3 +1,15 @@
 <div class="container-fluid">
-  items
+  <a href="/items/add">
+    <button class="btn btn-outline-secondary">+ add an item</button>
+  </a>
+  <p>
+    recently updated items
+    <ul>
+    {{#each items}}
+      <li>
+        <a href="/items/{{id}}">{{brand}} {{name}} {{updatedAt}}</a>
+      </li>
+    {{/each}}
+    </ul>
+  </p>
 </div>
