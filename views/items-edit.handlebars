@@ -1,11 +1,15 @@
 <div class="container-fluid">
-  {{#if id}}
-    <a href="/items/{{id}}">
-      <button class="btn btn-outline-primary">
-        &lt; back to {{brand}} {{name}}
-      </button>
-    </a>
-  {{/if}}
+  <header>
+    {{#if id}}
+      <a href="/items/{{id}}">
+        <button class="btn btn-outline-primary">
+          &lt; back to {{brand}} {{name}}
+        </button>
+      </a>
+    {{else}}
+      <span class="light-grey">new item</span>
+    {{/if}}
+  </header>
 
   <form method="post">
     <div class="form-group">
@@ -52,7 +56,7 @@
       <textarea class="form-control" id="notes" name="notes" placeholder="notes">{{notes}}</textarea>
     </div>
 
-    <button class="btn btn-primary" type="submit">save</button>
+    <button class="btn btn-danger" type="submit">save</button>
 
   </form>
 </div>
