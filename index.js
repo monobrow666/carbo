@@ -33,7 +33,7 @@ app.get('/', function (req, res) {
 
 app.get('/items', function (req, res) {
   Item.find({}, function (err, docs) {
-    if ( err ) { } // TODO
+    if ( err ) {} // TODO
     var context = {
       items: docs.map(function (doc) {
         return itemViewModel(doc)
@@ -56,7 +56,7 @@ app.post('/items/add', function (req, res) {
 
 app.get('/items/:id', function (req, res) {
   Item.findById(req.params.id, function (err, doc) {
-    if ( err ) { } // TODO
+    if ( err ) {} // TODO
     if ( !doc ) {} // TODO
     res.render('items-detail', itemViewModel(doc));
   });
@@ -64,7 +64,7 @@ app.get('/items/:id', function (req, res) {
 
 app.get('/items/:id/edit', function (req, res) {
   Item.findById(req.params.id, function (err, doc) {
-    if ( err ) { } // TODO
+    if ( err ) {} // TODO
     if ( !doc ) {} // TODO
     res.render('items-edit', itemViewModel(doc));
   });
@@ -73,10 +73,31 @@ app.get('/items/:id/edit', function (req, res) {
 app.post('/items/:id/edit', function (req, res) {
   var data = processRequestData(req);
   Item.updateOne({ _id: req.params.id }, data, function (err, result) {
-    if ( err ) { console.error(err) }
-    if ( !result ) { } // TODO
+    if ( err ) { console.error(err) } // TODO
+    if ( !result ) {} // TODO
   });
   res.redirect(303, '/items/' + req.params.id);
+});
+
+app.post('/search', function (req, res) {
+  var term = req.body.q;
+  Item.find({
+    $or: [
+      { name: { $regex: term, $options: 'i' } },
+      { brand: { $regex: term, $options: 'i' } },
+      { notes: { $regex: term, $options: 'i' } }
+    ]
+  }, function (err, docs) {
+    if ( err ) {} // TODO
+    if ( !docs ) {} // TODO
+    var context = {
+      term: term,
+      items: docs.map(function (doc) {
+        return itemViewModel(doc)
+      })
+    };
+    res.render('items', context);
+  }).limit(10);
 });
 
 
@@ -107,10 +128,7 @@ function processRequestData (req) {
     name: req.body.name,
     servingSize: req.body.serving_size,
     servingSizeUnit: req.body.serving_size_unit,
-    servingSizeWeight: req.body.serving_size_weight,
     carbs: req.body.carbs,
-    sugars: req.body.sugars,
-    protein: req.body.protein,
     notes: req.body.notes
   };
   console.log('data:', data);

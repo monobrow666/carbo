@@ -1,15 +1,22 @@
 <div class="container-fluid">
-  <a href="/items/add">
-    <button class="btn btn-outline-secondary">+ add an item</button>
-  </a>
-  <p>
-    recently updated items
-    <ul>
+  <header>
+    {{#if term}}
+      search for '{{term}}'
+    {{else}}
+      recently updated items
+    {{/if}}
+  </header>
+
+  <div class="list-group">
     {{#each items}}
-      <li>
-        <a href="/items/{{id}}">{{brand}} {{name}} {{updatedAt}}</a>
-      </li>
+      <a class="list-group-item list-group-item-action" href="/items/{{id}}">
+        <div class="item" data-updated-at="{{updatedAt}}">
+          <h5>{{name}}</h5>
+          {{brand}} <small class="float-right">{{updatedAtDate}}</small>
+        </div>
+      </a>
+    {{else}}
+      <div class="alert alert-warning">nothing found</div>
     {{/each}}
-    </ul>
-  </p>
+  </div>
 </div>

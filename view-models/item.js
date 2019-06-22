@@ -12,12 +12,24 @@ module.exports = function (item) {
     return item.servingSizeUnit === 'cups';
   }
 
+  function _isUnitTablespoons() {
+    return item.servingSizeUnit === 'tablespoons';
+  }
+
+  function _isUnitTeaspoons() {
+    return item.servingSizeUnit === 'teaspoons';
+  }
+
   function _isUnitLiters() {
     return item.servingSizeUnit === 'liters';
   }
 
   function _isUnitPieces() {
     return item.servingSizeUnit === 'pieces';
+  }
+
+  function _shortDate(date) {
+    return new Date(date).toDateString();
   }
 
   return {
@@ -33,10 +45,13 @@ module.exports = function (item) {
     notes: item.notes,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
+    updatedAtDate: _shortDate(item.updatedAt),
     isUnitGrams: _isUnitGrams,
     isUnitOunces: _isUnitOunces,
     isUnitCups: _isUnitCups,
+    isUnitTablespoons: _isUnitTablespoons,
+    isUnitTeaspoons: _isUnitTeaspoons,
     isUnitLiters: _isUnitLiters,
-    isUnitPieces: _isUnitPieces,
-  }
-}
+    isUnitPieces: _isUnitPieces
+  };
+};
