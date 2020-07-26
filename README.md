@@ -1,1 +1,1 @@
-An app to manage foods and calculate carbs per serving.
+An app to manage nutrition information and calculate carbs per serving.
