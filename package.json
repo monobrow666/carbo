@@ -1,7 +1,7 @@
 {
   "name": "carbo",
   "version": "1.0.0",
-  "description": "Manage nutrition facts for carb counting.",
+  "description": "Manage nutrition information for carb counting.",
   "main": "index.js",
   "repository": "https://github.com/monobrow666/carbo.git",
   "scripts": {
