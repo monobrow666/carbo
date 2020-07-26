@@ -1,7 +1,6 @@
 <!doctype html>
 <html>
   <head>
-    <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
   </head>
 
   <body>
@@ -13,6 +12,8 @@
 
   </body>
 
+  <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.17.1/firebase-firestore.js"></script>
   <script>
     // Your web app's Firebase configuration
     var firebaseConfig = {
@@ -26,6 +27,8 @@
     };
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
+
+    var db = firebase.firestore();
   </script>
 
   <script>
@@ -34,12 +37,16 @@
         foo: foo
       };
 
-      firebase.database().ref('test-collection').push().set(fooObject)
-        .then(function (snapshot) {
-          console.log('snapshot:', snapshot);
-        }, function (error) {
-          console.error('error:', error);
-        });
+      db.collection("test-collection").add({
+        foo: foo,
+        createdAt: new Date()
+      })
+      .then(function (docRef) {
+        console.log("doc written with ID:", docRef.id);
+      })
+      .catch(function (error) {
+        console.error("error:", error);
+      });
     }
 
     saveToFirebase(foo);
