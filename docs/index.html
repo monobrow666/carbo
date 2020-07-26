@@ -33,10 +33,6 @@
 
   <script>
     function saveToFirebase(foo) {
-      var fooObject = {
-        foo: foo
-      };
-
       db.collection("test-collection").add({
         foo: foo,
         createdAt: new Date()
@@ -49,6 +45,6 @@
       });
     }
 
-    saveToFirebase(foo);
+    saveToFirebase("duh");
   </script>
 </html>
