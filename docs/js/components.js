@@ -28,7 +28,7 @@ Vue.component("app-nav-bar", {
 });
 
 //
-// Local Components
+// Local Components (for use in Pages)
 //
 const FoodsList = {
   name: 'foods-list',
@@ -83,12 +83,14 @@ const SearchPage = {
   },
   data() {
     return {
-      foods: new FoodCollection().search()
     }
   },
   computed: {
     q() {
       return this.$route.query.q
+    },
+    foods() {
+      return getFoods();
     }
   },
   template: `
@@ -109,7 +111,11 @@ const FoodsPage = {
   },
   data() {
     return {
-      foods: new FoodCollection().search()
+    }
+  },
+  computed: {
+    foods() {
+      return getFoods();
     }
   },
   template: `
@@ -211,8 +217,7 @@ const FoodDetailPage = {
   },
   computed: {
     food() {
-      console.log('id:', this.$route.params.id);
-      console.log('food:', new Food(this.$route.params.id));
+      return getFoodById(this.$route.params.id);
     }
   },
   template: `
@@ -225,7 +230,7 @@ const FoodDetailPage = {
         </router-link>
       </header>
 
-      <div id="app">
+      <div>
         <h3>
           {{food.name}}
           <router-link :to="'/food/' + food.id + '/edit'">
@@ -233,6 +238,56 @@ const FoodDetailPage = {
           </router-link>
         </h3>
         <h4>{{food.brand}}</h4>
+      </div>
+
+      <div class="list-group">
+        <div class="list-group-item">
+          <div class="input-group">
+            <input id="servingSize" class="form-control" value="{{servingSize}}" placeholder="{{servingSize}}">
+            <select id="servingSizeUnit">
+              {{#if isUnitCups}}
+                <option value="cups">* cups</option>
+                <option value="tablespoons">tablespoons</option>
+              {{/if}}
+              {{#if isUnitTablespoons}}
+                <option value="tablespoons">* tablespoons</option>
+                <option value="teaspoons">teaspoons</option>
+                <option value="cups">cups</option>
+              {{/if}}
+              {{#if isUnitTeaspoons}}
+                <option value="teaspoons">* teaspoons</option>
+                <option value="tablespoons">tablespoons</option>
+              {{/if}}
+              {{#if isUnitGrams}}
+                <option value="grams">* grams</option>
+                <option value="ounces">ounces</option>
+              {{/if}}
+              {{#if isUnitOunces}}
+                <option value="ounces">* ounces</option>
+                <option value="grams">grams</option>
+              {{/if}}
+              {{#if isUnitPieces}}
+                <option value="pieces">* pieces</option>
+              {{/if}}
+            </select>
+          </div>
+        </div>
+        <div class="list-group-item">
+          <span id="carbs">{{carbs}}</span>
+          <span>carbohydrates</span>
+        </div>
+        <div class="list-group-item">
+          <div class="light-grey">notes</div>
+          {{notes}}
+        </div>
+        <div class="list-group-item">
+          <div class="light-grey">date updated</div>
+          {{updatedAt}}
+        </div>
+        <div class="list-group-item">
+          <div class="light-grey">date added</div>
+          {{createdAt}}
+        </div>
       </div>
     </div>
   `,

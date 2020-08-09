@@ -5,19 +5,13 @@ let fakeFoods = [
   { id: 3, brand: "", name: "grapes", updatedAt: new Date() },
 ];
 
-const Food = function (id) {
-  console.log('Food.id:', id);
-  console.log('Food.find:',fakeFoods.find((food) => food.id === id));
-};
+function getFoodById(id) {
+  return fakeFoods.find(function (food) {
+    return food.id == id;
+  });
+}
 
-const FoodCollection = function () {
-  return {
-    find: function (id) {
-      return new Food(id);
-    },
-    search: function (term) {
-      return fakeFoods;
-    },
-  }
-};
+function getFoods() {
+  return fakeFoods;
+}
 
