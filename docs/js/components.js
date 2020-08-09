@@ -14,7 +14,7 @@ Vue.component("app-nav-bar", {
   },
   template: `
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <router-link class="navbar-brand" to="/">carbo</router-link>
+      <router-link class="navbar-brand" to="/">Carbo</router-link>
       <form class="form-inline" @submit.prevent="search">
         <div class="input-group">
           <input class="form-control" id="q" name="q" v-model="q" placeholder="Food...">
@@ -64,7 +64,14 @@ const HomePage = {
   },
   template: `
     <div class="container-fluid">
-      <p>home</p>
+      <header>
+        <router-link to="/food/new">
+          <button class="btn btn-outline-success">+ Add a food</button>
+        </router-link>
+        <router-link to="/foods">
+          <button class="btn btn-outline-primary">Recently Updated</button>
+        </router-link>
+      </header>
     </div>
   `,
 };
@@ -76,10 +83,7 @@ const SearchPage = {
   },
   data() {
     return {
-      foods: [
-        { id: "1", name: "apple", brand: "", updatedAt: new Date() },
-        { id: "2", name: "orange", brand: "", updatedAt: new Date() }
-      ]
+      foods: new FoodCollection().search()
     }
   },
   computed: {
@@ -105,10 +109,7 @@ const FoodsPage = {
   },
   data() {
     return {
-      foods: [
-        { id: "1", name: "apple", brand: "", updatedAt: new Date() },
-        { id: "2", name: "orange", brand: "", updatedAt: new Date() }
-      ]
+      foods: new FoodCollection().search()
     }
   },
   template: `
@@ -125,16 +126,79 @@ const FoodEditPage = {
   name: "food-edit-page",
   data() {
     return {
+      food: {
+      },
+      loading: false,
     }
   },
   computed: {
     foodId() {
-      return this.$route.params.id
-    }
+      return this.$route.params.id;
+    },
+  },
+  methods: {
+    save() {
+      this.loading = true;
+    },
   },
   template: `
     <div class="container-fluid">
-      <p>id: {{foodId}}</p>
+      <header>
+        <router-link v-if="foodId" to="'/food/' + foodId">
+          <button class="btn btn-outline-primary">
+            &lt; back to {{brand}} {{name}}
+          </button>
+        </router-link>
+        <span v-else class="light-grey">New Food</span>
+      </header>
+
+      <form @submit.prevent="save">
+        <div class="form-group">
+          <label for="brand">brand</label>
+          <input class="form-control" id="brand" name="brand" value="{{brand}}" placeholder="brand">
+        </div>
+
+        <div class="form-group">
+          <label for="name">name</label>
+          <input class="form-control" id="name" name="name" value="{{name}}" placeholder="name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="serving_size">serving size</label>
+          <input class="form-control" id="serving_size" name="serving_size" value="{{servingSize}}" placeholder="serving size" required>
+        </div>
+
+        <div class="form-group">
+          <label for="serving_size_unit">serving size unit</label>
+          <select class="form-control" id="serving_size_unit" name="serving_size_unit" required>
+            <option value="">select...</option>
+            <option value="grams" {{#if isUnitGrams}} selected {{/if}}>grams</option>
+            <option value="ounces" {{#if isUnitOunces}} selected {{/if}}>ounces</option>
+            <option value="cups" {{#if isUnitCups}} selected {{/if}}>cups</option>
+            <option value="tablespoons" {{#if isUnitTablespoons}} selected {{/if}}>tablespoons</option>
+            <option value="teaspoons" {{#if isUnitTeaspoons}} selected {{/if}}>teaspoons</option>
+            <option value="liters" {{#if isUnitLiters}} selected {{/if}}>liters</option>
+            <option value="pieces" {{#if isUnitPieces}} selected {{/if}}>pieces</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="carbs">carbs</label>
+          <div class="input-group">
+            <input class="form-control" id="carbs" name="carbs" value="{{carbs}}" placeholder="carbs" required>
+            <div class="input-group-append">
+              <span class="input-group-text">grams</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">notes</label>
+          <textarea class="form-control" id="notes" name="notes" placeholder="notes">{{notes}}</textarea>
+        </div>
+
+        <button class="btn btn-danger" type="submit">Save</button>
+      </form>
     </div>
   `,
 };
@@ -143,11 +207,12 @@ const FoodDetailPage = {
   name: "food-detail-page",
   data() {
     return {
-      food: {
-        id: 1,
-        name: 'apple',
-        brand: '',
-      }
+    }
+  },
+  computed: {
+    food() {
+      console.log('id:', this.$route.params.id);
+      console.log('food:', new Food(this.$route.params.id));
     }
   },
   template: `
