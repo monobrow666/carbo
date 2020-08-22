@@ -114,8 +114,8 @@ const FoodsPage = {
     }
   },
   computed: {
-    foods() {
-      return getFoods();
+    async foods() {
+      return await getFoods();
     }
   },
   template: `
@@ -168,9 +168,9 @@ const FoodEditPage = {
     },
   },
   methods: {
-    processForm() {
+    async processForm() {
       this.isProcessing = true;
-      saveFood({
+      const newId = await saveFood({
         brand: this.brand,
         name: this.name,
         servingSize: this.servingSize,
@@ -179,6 +179,7 @@ const FoodEditPage = {
         notes: this.notes,
       });
       this.isProcessing = false;
+      this.$router.push('/food/' + newId);
     },
   },
   template: `
@@ -237,7 +238,7 @@ const FoodEditPage = {
           <textarea class="form-control" id="notes" v-model="notes" placeholder="notes"></textarea>
         </div>
 
-        <button class="btn btn-danger" type="submit">Save</button>
+        <button class="btn btn-danger" type="submit" :disabled="isProcessing">Save</button>
       </form>
       <br>
 

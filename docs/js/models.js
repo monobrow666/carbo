@@ -11,19 +11,40 @@ function getFoodById(id) {
   });
 }
 
-function getFoods() {
-  return fakeFoods;
+async function getFoods() {
+//  return fakeFoods;
+  const docRef = await db.collection('foods').get();
+  let foods = [];
+  for ( doc of docRef.docs ) {
+    const data = doc.data();
+    foods.push({
+      id: doc.id,
+      brand: data.brand,
+      name: data.name,
+      servingSize: data.servingSize,
+      servingSizeUnit: data.servingSizeUnit,
+      carbs: data.carbs,
+      notes: data.notes,
+      updatedAt: data.updatedAt,
+    });
+  }
+  console.log('foods:', foods);
+  return foods;
 }
 
-function saveFood(food) {
+async function saveFood(food) {
   food.updatedAt = new Date();
 
-  db.collection('foods').add(food)
-    .then(function (docRef) {
-      console.log("doc written with ID:", docRef.id);
-    })
-    .catch(function (error) {
-      console.error("error:", error);
-    });
+//  const docRef = db.collection('foods').add(food);
+//    .then(function (docRef) {
+//      console.log("doc written with ID:", docRef.id);
+//    })
+//    .catch(function (error) {
+//      console.error("error:", error);
+//    });
+  const docRef = await db.collection('foods').add(food);
+  // TODO handle errors
+  console.log("doc written with ID:", docRef.id);
+  return docRef.id;
 }
 
