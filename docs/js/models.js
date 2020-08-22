@@ -15,3 +15,15 @@ function getFoods() {
   return fakeFoods;
 }
 
+function saveFood(food) {
+  food.updatedAt = new Date();
+
+  db.collection('foods').add(food)
+    .then(function (docRef) {
+      console.log("doc written with ID:", docRef.id);
+    })
+    .catch(function (error) {
+      console.error("error:", error);
+    });
+}
+

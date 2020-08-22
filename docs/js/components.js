@@ -1,10 +1,10 @@
 //
 // Global Components
 //
-Vue.component("app-nav-bar", {
+Vue.component('app-nav-bar', {
   data() {
     return {
-      q: ""
+      q: ''
     }
   },
   methods: {
@@ -57,7 +57,7 @@ const FoodsList = {
 // Pages
 //
 const HomePage = {
-  name: "home-page",
+  name: 'home-page',
   data() {
     return {
     }
@@ -77,9 +77,9 @@ const HomePage = {
 };
 
 const SearchPage = {
-  name: "search-page",
+  name: 'search-page',
   components: {
-    "foods-list": FoodsList
+    'foods-list': FoodsList
   },
   data() {
     return {
@@ -105,9 +105,9 @@ const SearchPage = {
 };
 
 const FoodsPage = {
-  name: "foods-page",
+  name: 'foods-page',
   components: {
-    "foods-list": FoodsList
+    'foods-list': FoodsList
   },
   data() {
     return {
@@ -129,22 +129,56 @@ const FoodsPage = {
 };
 
 const FoodEditPage = {
-  name: "food-edit-page",
+  name: 'food-edit-page',
   data() {
     return {
-      food: {
-      },
-      loading: false,
+      brand: '',
+      name: '',
+      servingSize: 0,
+      servingSizeUnit: '',
+      carbs: 0,
+      notes: '',
+      isProcessing: false,
     }
   },
   computed: {
     foodId() {
       return this.$route.params.id;
     },
+    isUnitGrams() {
+      return this.servingSizeUnit === 'grams';
+    },
+    isUnitOunces() {
+      return this.servingSizeUnit === 'ounces';
+    },
+    isUnitCups() {
+      return this.servingSizeUnit === 'cups';
+    },
+    isUnitTablespoons() {
+      return this.servingSizeUnit === 'tablespoons';
+    },
+    isUnitTeaspoons() {
+      return this.servingSizeUnit === 'teaspoons';
+    },
+    isUnitLiters() {
+      return this.servingSizeUnit === 'liters';
+    },
+    isUnitPieces() {
+      return this.servingSizeUnit === 'pieces';
+    },
   },
   methods: {
-    save() {
-      this.loading = true;
+    processForm() {
+      this.isProcessing = true;
+      saveFood({
+        brand: this.brand,
+        name: this.name,
+        servingSize: this.servingSize,
+        servingSizeUnit: this.servingSizeUnit,
+        carbs: this.carbs,
+        notes: this.notes,
+      });
+      this.isProcessing = false;
     },
   },
   template: `
@@ -155,43 +189,43 @@ const FoodEditPage = {
             &lt; back to {{brand}} {{name}}
           </button>
         </router-link>
-        <span v-else class="light-grey">New Food</span>
+        <h2 v-else class="light-grey">New Food</h2>
       </header>
 
-      <form @submit.prevent="save">
+      <form @submit.prevent="processForm">
         <div class="form-group">
-          <label for="brand">brand</label>
-          <input class="form-control" id="brand" name="brand" value="{{brand}}" placeholder="brand">
+          <label for="brand">Brand</label>
+          <input class="form-control" id="brand" v-model="brand" placeholder="Brand">
         </div>
 
         <div class="form-group">
-          <label for="name">name</label>
-          <input class="form-control" id="name" name="name" value="{{name}}" placeholder="name" required>
+          <label for="name">Name</label>
+          <input class="form-control" id="name" v-model="name" placeholder="Name" required>
         </div>
 
         <div class="form-group">
-          <label for="serving_size">serving size</label>
-          <input class="form-control" id="serving_size" name="serving_size" value="{{servingSize}}" placeholder="serving size" required>
+          <label for="serving_size">Serving Size</label>
+          <input class="form-control" id="serving_size" v-model="servingSize" placeholder="Serving Size" required>
         </div>
 
         <div class="form-group">
-          <label for="serving_size_unit">serving size unit</label>
-          <select class="form-control" id="serving_size_unit" name="serving_size_unit" required>
-            <option value="">select...</option>
-            <option value="grams" {{#if isUnitGrams}} selected {{/if}}>grams</option>
-            <option value="ounces" {{#if isUnitOunces}} selected {{/if}}>ounces</option>
-            <option value="cups" {{#if isUnitCups}} selected {{/if}}>cups</option>
-            <option value="tablespoons" {{#if isUnitTablespoons}} selected {{/if}}>tablespoons</option>
-            <option value="teaspoons" {{#if isUnitTeaspoons}} selected {{/if}}>teaspoons</option>
-            <option value="liters" {{#if isUnitLiters}} selected {{/if}}>liters</option>
-            <option value="pieces" {{#if isUnitPieces}} selected {{/if}}>pieces</option>
+          <label for="serving_size_unit">Serving Size Unit</label>
+          <select class="form-control" id="serving_size_unit" v-model="servingSizeUnit" required>
+            <option value="">Select...</option>
+            <option value="grams" :selected="isUnitGrams">grams</option>
+            <option value="ounces" :selected="isUnitOunces">ounces</option>
+            <option value="cups" :selected="isUnitCups">cups</option>
+            <option value="tablespoons" :selected="isUnitTablespoons">tablespoons</option>
+            <option value="teaspoons" :selected="isUnitTeaspoons">teaspoons</option>
+            <option value="liters" :selected="isUnitLiters">liters</option>
+            <option value="pieces" :selected="isUnitPieces">pieces</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="carbs">carbs</label>
+          <label for="carbs">Carbs</label>
           <div class="input-group">
-            <input class="form-control" id="carbs" name="carbs" value="{{carbs}}" placeholder="carbs" required>
+            <input class="form-control" id="carbs" v-model="carbs" placeholder="Carbs" required>
             <div class="input-group-append">
               <span class="input-group-text">grams</span>
             </div>
@@ -199,18 +233,20 @@ const FoodEditPage = {
         </div>
 
         <div class="form-group">
-          <label for="notes">notes</label>
-          <textarea class="form-control" id="notes" name="notes" placeholder="notes">{{notes}}</textarea>
+          <label for="notes">Notes</label>
+          <textarea class="form-control" id="notes" v-model="notes" placeholder="notes"></textarea>
         </div>
 
         <button class="btn btn-danger" type="submit">Save</button>
       </form>
+      <br>
+
     </div>
   `,
 };
 
 const FoodDetailPage = {
-  name: "food-detail-page",
+  name: 'food-detail-page',
   data() {
     return {
     }
@@ -294,7 +330,7 @@ const FoodDetailPage = {
 };
 
 const NotFoundPage = {
-  name: "not-found-page",
+  name: 'not-found-page',
   data() {
     return {
     }
