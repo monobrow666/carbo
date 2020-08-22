@@ -111,12 +111,11 @@ const FoodsPage = {
   },
   data() {
     return {
+      foods: [],
     }
   },
-  computed: {
-    async foods() {
-      return await getFoods();
-    }
+  async created() {
+    this.foods = await getFoods();
   },
   template: `
     <div class="container-fluid">
