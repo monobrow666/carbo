@@ -4,13 +4,13 @@
 Vue.component('app-nav-bar', {
   data() {
     return {
-      q: ''
+      q: '',
     }
   },
   methods: {
     search() {
-      this.$router.push({ path: "/search", query: { q: this.q } })
-    }
+      this.$router.push({ path: "/search", query: { q: this.q } });
+    },
   },
   template: `
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -83,23 +83,32 @@ const SearchPage = {
   },
   data() {
     return {
+      foods: [],
+      isProcessing: true,
     }
   },
   computed: {
     q() {
-      return this.$route.query.q
+      return this.$route.query.q;
     },
-    foods() {
-      return getFoods();
-    }
+    areFoods() {
+      return this.foods.length > 0;
+    },
+  },
+  async created() {
+    this.foods = await searchFoods(this.q);
+    this.isProcessing = false;
   },
   template: `
     <div class="container-fluid">
       <header>
-        <span class="light-grey">Search results for '{{q}}'</span>
+        <h2 v-if="isProcessing" class="light-grey">Searching...</h2>
+        <h2 v-else class="light-grey">Search results for '{{q}}'</h2>
       </header>
-      <foods-list v-if="foods" :foods="foods"></foods-list>
-      <div v-else class="alert alert-warning">Oops! Nothing found</div>
+      <section v-if="!isProcessing">
+        <foods-list v-if="areFoods" :foods="foods"></foods-list>
+        <div v-else class="alert alert-warning">Oops! Nothing found</div>
+      </section>
     </div>
   `,
 };
@@ -115,12 +124,12 @@ const FoodsPage = {
     }
   },
   async created() {
-    this.foods = await getFoods();
+    this.foods = await getRecentFoods();
   },
   template: `
     <div class="container-fluid">
       <header>
-        <span class="light-grey">Recently updated Foods</span>
+        <h2 class="light-grey">Recently updated Foods</h2>
       </header>
       <foods-list :foods="foods"></foods-list>
     </div>
