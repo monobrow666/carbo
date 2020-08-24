@@ -5,37 +5,45 @@ let fakeFoods = [
   { id: 3, brand: "", name: "grapes", updatedAt: new Date() },
 ];
 
-function getFoodById(id) {
-  return fakeFoods.find(function (food) {
-    return food.id == id;
-  });
+async function getFoodById(id) {
+  const doc = await db.collection('foods').doc(id).get();
+  return viewModel(doc);
 }
 
 async function getRecentFoods() {
-  const docRef = await db.collection('foods').orderBy('updatedAt', 'desc').limit(10).get();
   let foods = [];
+
+  const docRef = await db.collection('foods').orderBy('updatedAt', 'desc').limit(10).get();
   for ( doc of docRef.docs ) {
     foods.push( viewModel(doc) );
   }
+
   return foods;
 }
 
 async function searchFoods(term) {
   term = term.toLowerCase();
-  const nameRef = await db.collection('foods').orderBy('name').startAt(term).endAt(term+'\uf8ff').get();
-  const brandRef = await db.collection('foods').orderBy('brand').startAt(term).endAt(term+'\uf8ff').get();
-  const notesRef = await db.collection('foods').orderBy('notes').startAt(term).endAt(term+'\uf8ff').get();
+  let tempFoods = {};
   let foods = [];
-  // TODO De-duplicate results!
-  for ( doc of nameRef.docs ) {
-    foods.push( viewModel(doc) );
+
+  const nameRef = await db.collection('foods').orderBy('name').startAt(term).endAt(term+'\uf8ff').limit(10).get();
+  const brandRef = await db.collection('foods').orderBy('brand').startAt(term).endAt(term+'\uf8ff').limit(10).get();
+  const notesRef = await db.collection('foods').orderBy('notes').startAt(term).endAt(term+'\uf8ff').limit(10).get();
+
+  for ( nameDoc of nameRef.docs ) {
+    tempFoods[nameDoc.id] = viewModel(nameDoc);
   }
-  for ( doc of brandRef.docs ) {
-    foods.push( viewModel(doc) );
+  for ( brandDoc of brandRef.docs ) {
+    tempFoods[brandDoc.id] = viewModel(brandDoc);
   }
-  for ( doc of notesRef.docs ) {
-    foods.push( viewModel(doc) );
+  for ( notesDoc of notesRef.docs ) {
+    tempFoods[notesDoc.id] = viewModel(notesDoc);
   }
+
+  for ( const property in tempFoods ) {
+    foods.push( tempFoods[property] );
+  }
+
   return foods;
 }
 
