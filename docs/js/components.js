@@ -266,10 +266,35 @@ const FoodDetailPage = {
   name: 'food-detail-page',
   data() {
     return {
-      food: {},
+      id: '',
+      brand: '',
+      name: '',
+      servingSize: 0,
+      servingSizeUnit: '',
+      carbs: 0,
+      notes: '',
+      updatedAt: 0,
+      selectedUnit: '',
+      enteredSize: 0,
     }
   },
-  methods: {
+  computed: {
+    baseFactor() {
+      return this.carbs / this.servingSize;
+    },
+    calculatedCarbs() {
+      if ( this.selectedUnit === this.servingSizeUnit ) {
+        return this.carbs * this.enteredSize;
+      }
+      
+      if ( this.isUnitCups ) {
+        return this.convertCups();
+      }
+      if ( this.isUnitGrams ) {
+        return this.convertGrams();
+      }
+      return 0; // TODO
+    },
     isUnitCups() {
       return this.servingSizeUnit === 'cups';
     },
@@ -289,60 +314,81 @@ const FoodDetailPage = {
       return this.servingSizeUnit === 'pieces';
     },
   },
+  methods: {
+    convertCups() {
+    },
+    convertGrams() {
+      if ( this.selectedUnit === 'ounces' ) {
+        return this.enteredSize * this.baseFactor * 28.349;
+      }
+    },
+  },
   async created() {
-    this.food = await getFoodById(this.$route.params.id);
+    const food = await getFoodById(this.$route.params.id);
+    // TODO handle errors
+    this.id = food.id;
+    this.brand = food.brand;
+    this.name = food.name;
+    this.servingSize = food.servingSize;
+    this.servingSizeUnit = food.servingSizeUnit;
+    this.carbs = food.carbs;
+    this.notes = food.notes;
+    this.updatedAt = food.updatedAt;
+
+    // set initial input/selection
+    this.enteredSize = food.servingSize;
+    this.selectedUnit = food.servingSizeUnit;
   },
   template: `
     <div class="container-fluid">
       <header>
         <router-link to="/foods">
-          <button class="btn btn-outline-primary">
-            &lt; Back to recently updated Foods
-          </button>
+          &lt; Back to Recently Updated Foods
         </router-link>
       </header>
 
       <div>
         <h3>
-          {{food.name}}
-          <router-link :to="'/food/' + food.id + '/edit'">
+          {{name}}
+          <router-link :to="'/food/' + id + '/edit'">
             <button class="btn btn-sm btn-outline-danger">Edit</button>
           </router-link>
         </h3>
-        <h4>{{food.brand}}</h4>
+        <h4>{{brand}}</h4>
       </div>
 
       <div class="list-group">
         <div class="list-group-item">
           <div class="input-group">
-            <input id="servingSize" class="form-control" :value="food.servingSize" placeholder="food.servingSize">
-            <select id="servingSizeUnit">
-              <option v-if="isUnitCups" value="cups">* cups</option>
+            <input id="servingSize" class="form-control" v-model="enteredSize" :placeholder="servingSize">
+            <select id="servingSizeUnit" v-model="selectedUnit">
+              <option disabled value="">select...</option>
+              <option v-if="isUnitCups" selected value="cups">* cups</option>
               <option v-if="isUnitCups" value="tablespoons">tablespoons</option>
-              <option v-if="isUnitTablespoons" value="tablespoons">* tablespoons</option>
+              <option v-if="isUnitTablespoons" selected value="tablespoons">* tablespoons</option>
               <option v-if="isUnitTablespoons" value="teaspoons">teaspoons</option>
               <option v-if="isUnitTablespoons" value="cups">cups</option>
-              <option v-if="isUnitTeaspoons" value="teaspoons">* teaspoons</option>
+              <option v-if="isUnitTeaspoons" selected value="teaspoons">* teaspoons</option>
               <option v-if="isUnitTeaspoons" value="tablespoons">tablespoons</option>
-              <option v-if="isUnitGrams" value="grams">* grams</option>
+              <option v-if="isUnitGrams" selected value="grams">* grams</option>
               <option v-if="isUnitGrams" value="ounces">ounces</option>
-              <option v-if="isUnitOunces" value="ounces">* ounces</option>
+              <option v-if="isUnitOunces" selected value="ounces">* ounces</option>
               <option v-if="isUnitOunces" value="grams">grams</option>
-              <option v-if="isUnitPieces" value="pieces">* pieces</option>
+              <option v-if="isUnitPieces" selected value="pieces">* pieces</option>
             </select>
           </div>
         </div>
         <div class="list-group-item">
-          <span id="carbs">{{food.carbs}}</span>
+          <span id="carbs">{{calculatedCarbs}}</span>
           <span>carbohydrates</span>
         </div>
         <div class="list-group-item">
           <div class="light-grey">notes</div>
-          {{food.notes}}
+          {{notes}}
         </div>
         <div class="list-group-item">
           <div class="light-grey">date updated</div>
-          {{food.updatedAt}}
+          {{updatedAt}}
         </div>
       </div>
     </div>
