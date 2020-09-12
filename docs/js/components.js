@@ -148,6 +148,7 @@ const FoodEditPage = {
   name: 'food-edit-page',
   data() {
     return {
+      id: '',
       brand: '',
       name: '',
       servingSize: 0,
@@ -186,17 +187,33 @@ const FoodEditPage = {
   methods: {
     async processForm() {
       this.isProcessing = true;
-      const newId = await saveFood({
+      const food = {
         brand: this.brand,
         name: this.name,
         servingSize: this.servingSize,
         servingSizeUnit: this.servingSizeUnit,
         carbs: this.carbs,
         notes: this.notes,
-      });
+      };
+      if ( this.id ) {
+        food.id = this.id;
+      }
+      const newId = await saveFood( food );
       this.isProcessing = false;
       this.$router.push('/food/' + newId);
     },
+  },
+  async created() {
+    const food = await getFoodById(this.$route.params.id);
+    // TODO handle errors
+    this.id = food.id;
+    this.brand = food.brand;
+    this.name = food.name;
+    this.servingSize = food.servingSize;
+    this.servingSizeUnit = food.servingSizeUnit;
+    this.carbs = food.carbs;
+    this.notes = food.notes;
+    this.updatedAt = food.updatedAt;
   },
   template: `
     <div class="container-fluid">
@@ -284,14 +301,23 @@ const FoodDetailPage = {
     },
     calculatedCarbs() {
       if ( this.selectedUnit === this.servingSizeUnit ) {
-        return this.carbs * this.enteredSize;
+        return this.baseFactor * this.enteredSize;
       }
       
       if ( this.isUnitCups ) {
         return this.convertCups();
       }
+      if ( this.isUnitTablespoons ) {
+        return this.convertTablespoons();
+      }
+      if ( this.isUnitTeaspoons ) {
+        return this.convertTeaspoons();
+      }
       if ( this.isUnitGrams ) {
         return this.convertGrams();
+      }
+      if ( this.isUnitOunces ) {
+        return this.convertOunces();
       }
       return 0; // TODO
     },
@@ -316,10 +342,37 @@ const FoodDetailPage = {
   },
   methods: {
     convertCups() {
+      if ( this.selectedUnit === 'tablespoons' ) {
+        return this.enteredSize * this.baseFactor * ( 1 / 16 );
+      }
+      if ( this.selectedUnit === 'teaspoons' ) {
+        return this.enteredSize * this.baseFactor * ( 1 / 16 / 3 );
+      }
+    },
+    convertTablespoons() {
+      if ( this.selectedUnit === 'cups' ) {
+        return this.enteredSize * this.baseFactor * ( 1 * 16 );
+      }
+      if ( this.selectedUnit === 'teaspoons' ) {
+        return this.enteredSize * this.baseFactor * ( 1 / 3 );
+      }
+    },
+    convertTeaspoons() {
+      if ( this.selectedUnit === 'tablespoons' ) {
+        return this.enteredSize * this.baseFactor * ( 1 * 3 );
+      }
+      if ( this.selectedUnit === 'cups' ) {
+        return this.enteredSize * this.baseFactor * ( 1 * 3 * 16 );
+      }
     },
     convertGrams() {
       if ( this.selectedUnit === 'ounces' ) {
-        return this.enteredSize * this.baseFactor * 28.349;
+        return this.enteredSize * this.baseFactor * ( 1 * 28.349 );
+      }
+    },
+    convertOunces() {
+      if ( this.selectedUnit === 'grams' ) {
+        return this.enteredSize * this.baseFactor * ( 1 / 28.349 );
       }
     },
   },
@@ -351,7 +404,7 @@ const FoodDetailPage = {
         <h3>
           {{name}}
           <router-link :to="'/food/' + id + '/edit'">
-            <button class="btn btn-sm btn-outline-danger">Edit</button>
+            <button class="btn btn-sm btn-outline-danger">edit</button>
           </router-link>
         </h3>
         <h4>{{brand}}</h4>

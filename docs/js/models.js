@@ -57,7 +57,9 @@ async function saveFood(food) {
 //    .catch(function (error) {
 //      console.error("error:", error);
 //    });
-  const docRef = await db.collection('foods').add( food.convertToLowerCase() );
+  convertToLowerCase(food)
+  // TODO handle update
+  const docRef = await db.collection('foods').add( food );
   // TODO handle errors
   return docRef.id;
 }
