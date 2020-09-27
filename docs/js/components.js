@@ -18,7 +18,7 @@ Vue.component('app-nav-bar', {
       <router-link class="navbar-brand" to="/">carbo</router-link>
       <form class="form-inline" @submit.prevent="search">
         <div class="input-group">
-          <input class="form-control" id="q" name="q" v-model="q" placeholder="food...">
+          <input class="form-control" id="q" name="q" v-model="q" placeholder="Food...">
           <div class="input-group-append">
             <button class="btn btn-primary" type="submit">Search</button>
           </div>
@@ -38,6 +38,11 @@ const FoodsList = {
     return {
     }
   },
+  methods: {
+    shortDate(date) {
+      return (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getFullYear();
+    },
+  },
   template: `
     <div class="list-group">
       <router-link v-for="food in foods"
@@ -47,7 +52,7 @@ const FoodsList = {
       >
         <div class="item">
           <h5>{{food.name}}</h5>
-          {{food.brand}} <small class="float-right">{{food.updatedAt}}</small>
+          {{food.brand}} <small class="float-right">{{shortDate(food.updatedAt)}}</small>
         </div>
       </router-link>
     </div>
@@ -162,6 +167,11 @@ const FoodEditPage = {
     foodId() {
       return this.$route.params.id;
     },
+    foodDetailUrl() {
+      if ( this.foodId ) {
+        return '/food/' + this.foodId;
+      }
+    },
     isUnitGrams() {
       return this.servingSizeUnit === 'grams';
     },
@@ -219,7 +229,7 @@ const FoodEditPage = {
   template: `
     <div class="container-fluid">
       <header class="mt-3">
-        <router-link v-if="foodId" to="'/food/' + foodId">
+        <router-link v-if="foodId" :to="foodDetailUrl">
           <button class="btn btn-outline-primary">
             &lt; Back to {{brand}} {{name}}
           </button>
