@@ -21,6 +21,8 @@ async function getRecentFoods() {
   return foods;
 }
 
+// Cloud Firestore doesn't have great built-in search features. This function
+// uses a hack to search specific fields.
 async function searchFoods(term) {
   term = term.toLowerCase();
   let tempFoods = {};
@@ -50,20 +52,26 @@ async function searchFoods(term) {
 async function saveFood(food) {
   food.updatedAt = new Date();
 
-//  const docRef = db.collection('foods').add(food);
-//    .then(function (docRef) {
-//      console.log("doc written with ID:", docRef.id);
-//    })
-//    .catch(function (error) {
-//      console.error("error:", error);
-//    });
+  // Because Cloud Firestore doesn't have good built-in searching, we have
+  // to convert the searchable fields to lowercase for easier searching later.
   convertToLowerCase(food)
-  // TODO handle update
-  const docRef = await db.collection('foods').add( food );
-  // TODO handle errors
-  return docRef.id;
+
+  if ( food.id ) {
+    const foodId = food.id;
+    delete food.id;
+    // TODO handle errors
+    const foodRef = await db.collection('foods').doc( foodId );
+    await foodRef.update( food );
+    return foodId;
+  } else {
+    // TODO handle errors
+    const docRef = await db.collection('foods').add( food );
+    return docRef.id;
+  }
 }
 
+// When Cloud Firestore improves their search, we won't need to convert the
+// searchable fields to lowercase anymore.
 function convertToLowerCase(food) {
   food.name = food.name.toLowerCase();
   food.brand = food.brand.toLowerCase();

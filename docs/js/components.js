@@ -65,7 +65,7 @@ const HomePage = {
   },
   template: `
     <div class="container-fluid">
-      <header>
+      <header class="mt-3">
         <router-link to="/food/new">
           <button class="btn btn-outline-success">+ Add a food</button>
         </router-link>
@@ -109,9 +109,9 @@ const SearchPage = {
   },
   template: `
     <div class="container-fluid">
-      <header>
-        <h2 v-if="isProcessing" class="light-grey">Searching...</h2>
-        <h2 v-else class="light-grey">Search results for '{{q}}'</h2>
+      <header class="mt-3">
+        <h2 v-if="isProcessing" class="text-muted">Searching...</h2>
+        <h2 v-else class="text-muted">Search results for '{{q}}'</h2>
       </header>
       <section v-if="!isProcessing">
         <foods-list v-if="areFoods" :foods="foods"></foods-list>
@@ -136,8 +136,8 @@ const FoodsPage = {
   },
   template: `
     <div class="container-fluid">
-      <header>
-        <h2 class="light-grey">Recently updated Foods</h2>
+      <header class="mt-3">
+        <h2 class="text-muted">Recently Updated Foods</h2>
       </header>
       <foods-list :foods="foods"></foods-list>
     </div>
@@ -204,6 +204,7 @@ const FoodEditPage = {
     },
   },
   async created() {
+    if ( !this.$route.params.id ) { return }
     const food = await getFoodById(this.$route.params.id);
     // TODO handle errors
     this.id = food.id;
@@ -217,16 +218,16 @@ const FoodEditPage = {
   },
   template: `
     <div class="container-fluid">
-      <header>
+      <header class="mt-3">
         <router-link v-if="foodId" to="'/food/' + foodId">
           <button class="btn btn-outline-primary">
-            &lt; back to {{brand}} {{name}}
+            &lt; Back to {{brand}} {{name}}
           </button>
         </router-link>
-        <h2 v-else class="light-grey">New Food</h2>
+        <h2 v-else class="text-muted">New Food</h2>
       </header>
 
-      <form @submit.prevent="processForm">
+      <form class="mt-3" @submit.prevent="processForm">
         <div class="form-group">
           <label for="brand">Brand</label>
           <input class="form-control" id="brand" v-model="brand" placeholder="Brand">
@@ -394,17 +395,19 @@ const FoodDetailPage = {
   },
   template: `
     <div class="container-fluid">
-      <header>
+      <header class="mt-3">
         <router-link to="/foods">
-          &lt; Back to Recently Updated Foods
+          <button class="btn btn-outline-primary">
+            &lt; Recently Updated
+          </button>
         </router-link>
       </header>
 
-      <div>
+      <div class="mt-3">
         <h3>
           {{name}}
           <router-link :to="'/food/' + id + '/edit'">
-            <button class="btn btn-sm btn-outline-danger">edit</button>
+            <button class="btn btn-sm btn-outline-danger">Edit</button>
           </router-link>
         </h3>
         <h4>{{brand}}</h4>
@@ -433,14 +436,14 @@ const FoodDetailPage = {
         </div>
         <div class="list-group-item">
           <span id="carbs">{{calculatedCarbs}}</span>
-          <span>carbohydrates</span>
+          <span>Carbohydrates</span>
         </div>
         <div class="list-group-item">
-          <div class="light-grey">notes</div>
+          <div class="text-muted">Notes</div>
           {{notes}}
         </div>
         <div class="list-group-item">
-          <div class="light-grey">date updated</div>
+          <div class="text-muted">Date Updated</div>
           {{updatedAt}}
         </div>
       </div>
