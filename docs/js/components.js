@@ -14,13 +14,15 @@ Vue.component('app-nav-bar', {
     },
   },
   template: `
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light box-shadow shadow-sm">
       <router-link class="navbar-brand" to="/">carbo</router-link>
       <form class="form-inline" @submit.prevent="search">
         <div class="input-group">
           <input class="form-control" id="q" name="q" v-model="q" placeholder="Food...">
           <div class="input-group-append">
-            <button class="btn btn-primary" type="submit">Search</button>
+            <button class="btn btn-primary" type="submit">
+              <i class="fa fa-search"></i>
+            </button>
           </div>
         </div>
       </form>
@@ -72,12 +74,21 @@ const HomePage = {
     <div class="container-fluid">
       <header class="mt-3">
         <router-link to="/food/new">
-          <button class="btn btn-outline-success">+ Add a food</button>
+          <button class="btn btn-success box-shadow shadow-sm">
+            <i class="fa fa-plus"></i>
+            Add A Food
+          </button>
         </router-link>
         <router-link to="/foods">
-          <button class="btn btn-outline-primary">Recently Updated</button>
+          <button class="btn btn-primary box-shadow shadow-sm">
+            <i class="fa fa-clock-o"></i>
+            Recently Updated
+          </button>
         </router-link>
       </header>
+      <article class="mt-3">
+        <p>Carbo is an app for calculating carbohydrates per serving for meals and snacks.</p>
+      </article>
     </div>
   `,
 };
@@ -142,7 +153,10 @@ const FoodsPage = {
   template: `
     <div class="container-fluid">
       <header class="mt-3">
-        <h2 class="text-muted">Recently Updated Foods</h2>
+        <h2 class="text-muted">
+          <i class="fa fa-clock-o"></i>
+          Recently Updated Foods
+        </h2>
       </header>
       <foods-list :foods="foods"></foods-list>
     </div>
@@ -230,8 +244,9 @@ const FoodEditPage = {
     <div class="container-fluid">
       <header class="mt-3">
         <router-link v-if="foodId" :to="foodDetailUrl">
-          <button class="btn btn-outline-primary">
-            &lt; Back to {{brand}} {{name}}
+          <button class="btn btn-outline-primary box-shadow shadow-sm">
+            <i class="fa fa-chevron-left"></i>
+            Back to {{brand}} {{name}}
           </button>
         </router-link>
         <h2 v-else class="text-muted">New Food</h2>
@@ -268,7 +283,7 @@ const FoodEditPage = {
         </div>
 
         <div class="form-group">
-          <label for="carbs">Carbs</label>
+          <label for="carbs">Carbohydrates</label>
           <div class="input-group">
             <input class="form-control" id="carbs" v-model="carbs" placeholder="Carbs" required>
             <div class="input-group-append">
@@ -282,7 +297,10 @@ const FoodEditPage = {
           <textarea class="form-control" id="notes" v-model="notes" placeholder="notes"></textarea>
         </div>
 
-        <button class="btn btn-danger" type="submit" :disabled="isProcessing">Save</button>
+        <button class="btn btn-danger box-shadow shadow-sm" type="submit" :disabled="isProcessing">
+          <i class="fa fa-floppy-o"></i>
+          Save
+        </button>
       </form>
       <br>
 
@@ -407,8 +425,9 @@ const FoodDetailPage = {
     <div class="container-fluid">
       <header class="mt-3">
         <router-link to="/foods">
-          <button class="btn btn-outline-primary">
-            &lt; Recently Updated
+          <button class="btn btn-primary box-shadow shadow-sm">
+            <i class="fa fa-chevron-left"></i>
+            Recently Updated
           </button>
         </router-link>
       </header>
@@ -417,7 +436,10 @@ const FoodDetailPage = {
         <h3>
           {{name}}
           <router-link :to="'/food/' + id + '/edit'">
-            <button class="btn btn-sm btn-outline-danger">Edit</button>
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="fa fa-pencil"></i>
+              Edit
+            </button>
           </router-link>
         </h3>
         <h4>{{brand}}</h4>
@@ -428,7 +450,7 @@ const FoodDetailPage = {
           <div class="input-group">
             <input id="servingSize" class="form-control" v-model="enteredSize" :placeholder="servingSize">
             <select id="servingSizeUnit" v-model="selectedUnit">
-              <option disabled value="">select...</option>
+              <option disabled value="">Select...</option>
               <option v-if="isUnitCups" selected value="cups">* cups</option>
               <option v-if="isUnitCups" value="tablespoons">tablespoons</option>
               <option v-if="isUnitTablespoons" selected value="tablespoons">* tablespoons</option>
