@@ -40,7 +40,7 @@ app.get('/items', function (req, res) {
       })
     };
     res.render('items', context);
-  }).sort({ updatedAt: -1 }).limit(10);
+  }).sort({ updatedAt: -1 });
 });
 
 app.get('/items/add', function (req, res) {
