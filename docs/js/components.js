@@ -15,12 +15,12 @@ Vue.component('app-nav-bar', {
   },
   template: `
     <nav class="navbar navbar-expand-lg navbar-light bg-light box-shadow shadow-sm">
-      <router-link class="navbar-brand" to="/">carbo</router-link>
+      <router-link class="navbar-brand text-info" to="/">carbo</router-link>
       <form class="form-inline" @submit.prevent="search">
         <div class="input-group">
-          <input class="form-control" id="q" name="q" v-model="q" placeholder="Food...">
+          <input class="form-control" id="q" name="q" v-model="q" placeholder="food...">
           <div class="input-group-append">
-            <button class="btn btn-primary" type="submit">
+            <button class="btn btn-info" type="submit">
               <i class="fa fa-search"></i>
             </button>
           </div>
@@ -126,8 +126,12 @@ const SearchPage = {
   template: `
     <div class="container-fluid">
       <header class="mt-3">
-        <h2 v-if="isProcessing" class="text-muted">Searching...</h2>
-        <h2 v-else class="text-muted">Search results for '{{q}}'</h2>
+        <div v-if="isProcessing" class="text-center">
+          <div class="spinner-border text-info" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+        <h3 v-else class="lead text-muted">Search results for '{{q}}'</h3>
       </header>
       <section v-if="!isProcessing">
         <foods-list v-if="areFoods" :foods="foods"></foods-list>
@@ -153,10 +157,10 @@ const FoodsPage = {
   template: `
     <div class="container-fluid">
       <header class="mt-3">
-        <h2 class="text-muted">
+        <h3 class="text-muted">
           <i class="fa fa-clock-o"></i>
           Recently Updated Foods
-        </h2>
+        </h3>
       </header>
       <foods-list :foods="foods"></foods-list>
     </div>
@@ -249,18 +253,18 @@ const FoodEditPage = {
             Back to {{brand}} {{name}}
           </button>
         </router-link>
-        <h2 v-else class="text-muted">New Food</h2>
+        <h3 v-else class="text-muted">New Food</h3>
       </header>
 
       <form class="mt-3" @submit.prevent="processForm">
         <div class="form-group">
           <label for="brand">Brand</label>
-          <input class="form-control" id="brand" v-model="brand" placeholder="Brand">
+          <input class="form-control" id="brand" v-model="brand" placeholder="a great brand...">
         </div>
 
         <div class="form-group">
           <label for="name">Name</label>
-          <input class="form-control" id="name" v-model="name" placeholder="Name" required>
+          <input class="form-control" id="name" v-model="name" placeholder="the food name..." required>
         </div>
 
         <div class="form-group">
@@ -271,7 +275,7 @@ const FoodEditPage = {
         <div class="form-group">
           <label for="serving_size_unit">Serving Size Unit</label>
           <select class="form-control" id="serving_size_unit" v-model="servingSizeUnit" required>
-            <option value="">Select...</option>
+            <option value="">select...</option>
             <option value="grams" :selected="isUnitGrams">grams</option>
             <option value="ounces" :selected="isUnitOunces">ounces</option>
             <option value="cups" :selected="isUnitCups">cups</option>
@@ -294,11 +298,12 @@ const FoodEditPage = {
 
         <div class="form-group">
           <label for="notes">Notes</label>
-          <textarea class="form-control" id="notes" v-model="notes" placeholder="notes"></textarea>
+          <textarea class="form-control" id="notes" v-model="notes" placeholder="text here is searchable..."></textarea>
         </div>
 
         <button class="btn btn-danger box-shadow shadow-sm" type="submit" :disabled="isProcessing">
-          <i class="fa fa-floppy-o"></i>
+          <span v-if="isProcessing" class="spinner-border spinner-border-sm"></span>
+          <i v-else class="fa fa-floppy-o"></i>
           Save
         </button>
       </form>
@@ -430,27 +435,25 @@ const FoodDetailPage = {
             Recently Updated
           </button>
         </router-link>
+        <router-link :to="'/food/' + id + '/edit'">
+          <button class="btn btn-outline-danger">
+            <i class="fa fa-pencil"></i>
+            Edit
+          </button>
+        </router-link>
       </header>
 
       <div class="mt-3">
-        <h3>
-          {{name}}
-          <router-link :to="'/food/' + id + '/edit'">
-            <button class="btn btn-sm btn-outline-danger">
-              <i class="fa fa-pencil"></i>
-              Edit
-            </button>
-          </router-link>
-        </h3>
-        <h4>{{brand}}</h4>
+        <h3>{{name}}</h3>
+        <h4 class="font-weight-lighter text-muted">{{brand}}</h4>
       </div>
 
       <div class="list-group">
         <div class="list-group-item">
           <div class="input-group">
             <input id="servingSize" class="form-control" v-model="enteredSize" :placeholder="servingSize">
-            <select id="servingSizeUnit" v-model="selectedUnit">
-              <option disabled value="">Select...</option>
+            <select id="servingSizeUnit" class="custom-select" v-model="selectedUnit">
+              <option disabled value="">select...</option>
               <option v-if="isUnitCups" selected value="cups">* cups</option>
               <option v-if="isUnitCups" value="tablespoons">tablespoons</option>
               <option v-if="isUnitTablespoons" selected value="tablespoons">* tablespoons</option>
