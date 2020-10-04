@@ -24,7 +24,7 @@ async function getRecentFoods() {
 // Cloud Firestore doesn't have great built-in search features. This function
 // uses a hack to search specific fields.
 async function searchFoods(term) {
-  term = term.toLowerCase();
+  term = term.toLowerCase().trim();
   let tempFoods = {};
   let foods = [];
 

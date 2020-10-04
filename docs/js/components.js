@@ -135,7 +135,9 @@ const SearchPage = {
       </header>
       <section v-if="!isProcessing">
         <foods-list v-if="areFoods" :foods="foods"></foods-list>
-        <div v-else class="alert alert-warning">Oops! Nothing found</div>
+        <div v-else class="alert alert-warning">
+          Oops! That search didn't find anything.
+        </div>
       </section>
     </div>
   `,
@@ -179,6 +181,7 @@ const FoodEditPage = {
       carbs: 0,
       notes: '',
       isProcessing: false,
+      saveError: '',
     }
   },
   computed: {
@@ -226,9 +229,19 @@ const FoodEditPage = {
       if ( this.id ) {
         food.id = this.id;
       }
-      const newId = await saveFood( food );
+
+      let newId = '';
+      try {
+        newId = await saveFood( food );
+      } catch (error) {
+        console.log(error);
+        this.saveError = error;
+      }
       this.isProcessing = false;
-      this.$router.push('/food/' + newId);
+
+      if ( newId ) {
+        this.$router.push('/food/' + newId);
+      }
     },
   },
   async created() {
@@ -256,6 +269,10 @@ const FoodEditPage = {
         <h3 v-else class="text-muted">New Food</h3>
       </header>
 
+      <div v-if="saveError" class="mt-3 alert alert-danger">
+        Oh, man. The save didn't work.
+      </div>
+
       <form class="mt-3" @submit.prevent="processForm">
         <div class="form-group">
           <label for="brand">Brand</label>
@@ -269,13 +286,13 @@ const FoodEditPage = {
 
         <div class="form-group">
           <label for="serving_size">Serving Size</label>
-          <input class="form-control" id="serving_size" v-model="servingSize" placeholder="Serving Size" required>
+          <input type="number" step="0.01" min="0" class="form-control" id="serving_size" v-model="servingSize" required>
         </div>
 
         <div class="form-group">
           <label for="serving_size_unit">Serving Size Unit</label>
           <select class="form-control" id="serving_size_unit" v-model="servingSizeUnit" required>
-            <option value="">select...</option>
+            <option value="" disabled>select...</option>
             <option value="grams" :selected="isUnitGrams">grams</option>
             <option value="ounces" :selected="isUnitOunces">ounces</option>
             <option value="cups" :selected="isUnitCups">cups</option>
@@ -289,7 +306,7 @@ const FoodEditPage = {
         <div class="form-group">
           <label for="carbs">Carbohydrates</label>
           <div class="input-group">
-            <input class="form-control" id="carbs" v-model="carbs" placeholder="Carbs" required>
+            <input type="number" step="0.01" min="0" class="form-control" id="carbs" v-model="carbs" required>
             <div class="input-group-append">
               <span class="input-group-text">grams</span>
             </div>
@@ -298,7 +315,7 @@ const FoodEditPage = {
 
         <div class="form-group">
           <label for="notes">Notes</label>
-          <textarea class="form-control" id="notes" v-model="notes" placeholder="text here is searchable..."></textarea>
+          <textarea class="form-control" id="notes" v-model="notes" placeholder="this text is searchable..."></textarea>
         </div>
 
         <button class="btn btn-danger box-shadow shadow-sm" type="submit" :disabled="isProcessing">
@@ -306,6 +323,9 @@ const FoodEditPage = {
           <i v-else class="fa fa-floppy-o"></i>
           Save
         </button>
+        <div v-if="saveError" class="alert alert-danger mt-3">
+          {{saveError}}
+        </div>
       </form>
       <br>
 
@@ -335,23 +355,27 @@ const FoodDetailPage = {
     },
     calculatedCarbs() {
       if ( this.selectedUnit === this.servingSizeUnit ) {
-        return this.baseFactor * this.enteredSize;
+        if ( this.enteredSize === this.servingSize ) {
+          return this.carbs;
+        } else {
+          return this.twoDecimalPlaces(this.baseFactor * this.enteredSize);
+        }
       }
       
       if ( this.isUnitCups ) {
-        return this.convertCups();
+        return this.twoDecimalPlaces(this.convertCups());
       }
       if ( this.isUnitTablespoons ) {
-        return this.convertTablespoons();
+        return this.twoDecimalPlaces(this.convertTablespoons());
       }
       if ( this.isUnitTeaspoons ) {
-        return this.convertTeaspoons();
+        return this.twoDecimalPlaces(this.convertTeaspoons());
       }
       if ( this.isUnitGrams ) {
-        return this.convertGrams();
+        return this.twoDecimalPlaces(this.convertGrams());
       }
       if ( this.isUnitOunces ) {
-        return this.convertOunces();
+        return this.twoDecimalPlaces(this.convertOunces());
       }
       return 0; // TODO
     },
@@ -409,6 +433,9 @@ const FoodDetailPage = {
         return this.enteredSize * this.baseFactor * ( 1 / 28.349 );
       }
     },
+    twoDecimalPlaces(value) {
+      return Number( Math.round(value + 'e2') + 'e-2');
+    },
   },
   async created() {
     const food = await getFoodById(this.$route.params.id);
@@ -436,7 +463,7 @@ const FoodDetailPage = {
           </button>
         </router-link>
         <router-link :to="'/food/' + id + '/edit'">
-          <button class="btn btn-outline-danger">
+          <button class="btn btn-outline-danger box-shadow shadow-sm">
             <i class="fa fa-pencil"></i>
             Edit
           </button>
@@ -474,11 +501,11 @@ const FoodDetailPage = {
           <span>Carbohydrates</span>
         </div>
         <div class="list-group-item">
-          <div class="text-muted">Notes</div>
+          <div class="small text-muted">Notes</div>
           {{notes}}
         </div>
         <div class="list-group-item">
-          <div class="text-muted">Date Updated</div>
+          <div class="small text-muted">Date Updated</div>
           {{updatedAt}}
         </div>
       </div>
