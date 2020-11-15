@@ -6,8 +6,15 @@ let fakeFoods = [
 ];
 
 async function getFoodById(id) {
-  const doc = await db.collection('foods').doc(id).get();
-  return viewModel(doc);
+  const docRef = await db.collection('foods').doc(id);
+  const doc = await docRef.get();
+  const food = viewModel(doc);
+
+  // Update when the food was viewed
+  food.lastViewedAt = new Date();
+  await docRef.update( food );
+
+  return food;
 }
 
 async function getRecentFoods() {
@@ -28,22 +35,14 @@ async function searchFoods(term) {
   let tempFoods = {};
   let foods = [];
 
-  const nameRef = await db.collection('foods').orderBy('name').startAt(term).endAt(term+'\uf8ff').limit(10).get();
-  const brandRef = await db.collection('foods').orderBy('brand').startAt(term).endAt(term+'\uf8ff').limit(10).get();
-  const notesRef = await db.collection('foods').orderBy('notes').startAt(term).endAt(term+'\uf8ff').limit(10).get();
+  const searchRef = await db.collection('foods')
+    .where( 'keywords', 'array-contains', term.toLowerCase().trim() )
+    .orderBy('name')
+    .limit(10)
+    .get();
 
-  for ( nameDoc of nameRef.docs ) {
-    tempFoods[nameDoc.id] = viewModel(nameDoc);
-  }
-  for ( brandDoc of brandRef.docs ) {
-    tempFoods[brandDoc.id] = viewModel(brandDoc);
-  }
-  for ( notesDoc of notesRef.docs ) {
-    tempFoods[notesDoc.id] = viewModel(notesDoc);
-  }
-
-  for ( const property in tempFoods ) {
-    foods.push( tempFoods[property] );
+  for ( doc of searchRef.docs ) {
+    foods.push( viewModel(doc) );
   }
 
   return foods;
@@ -53,8 +52,8 @@ async function saveFood(food) {
   food.updatedAt = new Date();
 
   // Because Cloud Firestore doesn't have good built-in searching, we have
-  // to convert the searchable fields to lowercase for easier searching later.
-  convertToLowerCase(food)
+  // to build our own keyword list.
+  generateKeywords(food);
 
   if ( food.id ) {
     const foodId = food.id;
@@ -70,12 +69,20 @@ async function saveFood(food) {
   }
 }
 
-// When Cloud Firestore improves their search, we won't need to convert the
-// searchable fields to lowercase anymore.
-function convertToLowerCase(food) {
-  food.name = food.name.toLowerCase();
-  food.brand = food.brand.toLowerCase();
-  food.notes = food.notes.toLowerCase();
+// Builds an array of keywords that can be used for text searches.
+function generateKeywords(food) {
+  const keywords = [];
+  const nameKeywords = splitField(food.name);
+  const brandKeywords = splitField(food.brand);
+  const notesKeywords = splitField(food.notes);
+  food.keywords = keywords.concat(nameKeywords, brandKeywords, notesKeywords);
+}
+
+function splitField(field) {
+  const lowercaseField = field.toLowerCase();
+  const separatorRegExp = /[ ,.;:()]+/;
+  const values = lowercaseField.split(separatorRegExp);
+  return values;
 }
 
 function viewModel(doc) {
