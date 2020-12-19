@@ -151,15 +151,22 @@ const FoodsPage = {
   data() {
     return {
       foods: [],
+      isProcessing: true
     }
   },
   async created() {
     this.foods = await getRecentFoods();
+    this.isProcessing = false;
   },
   template: `
     <div class="container-fluid">
       <header class="mt-3">
-        <h3 class="text-muted">
+        <div v-if="isProcessing" class="text-center">
+          <div class="spinner-border text-info" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+        <h3 v-else class="text-muted">
           <i class="fa fa-clock-o"></i>
           Recently Updated Foods
         </h3>
@@ -180,7 +187,7 @@ const FoodEditPage = {
       servingSizeUnit: '',
       carbs: 0,
       notes: '',
-      isProcessing: false,
+      isProcessing: true,
       saveError: '',
     }
   },
@@ -247,6 +254,7 @@ const FoodEditPage = {
   async created() {
     if ( !this.$route.params.id ) { return }
     const food = await getFoodById(this.$route.params.id);
+    this.isProcessing = false;
     // TODO handle errors
     this.id = food.id;
     this.brand = food.brand;
@@ -259,76 +267,85 @@ const FoodEditPage = {
   },
   template: `
     <div class="container-fluid">
-      <header class="mt-3">
-        <router-link v-if="foodId" :to="foodDetailUrl">
-          <button class="btn btn-outline-primary box-shadow shadow-sm">
-            <i class="fa fa-chevron-left"></i>
-            Back to {{brand}} {{name}}
-          </button>
-        </router-link>
-        <h3 v-else class="text-muted">New Food</h3>
-      </header>
-
-      <div v-if="saveError" class="mt-3 alert alert-danger">
-        Oh, man. The save didn't work.
+      <div v-if="isProcessing" class="text-center">
+        <header class="mt-3">
+          <div class="spinner-border text-info" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </header>
       </div>
+      <div v-else>
+        <header class="mt-3">
+          <router-link v-if="foodId" :to="foodDetailUrl">
+            <button class="btn btn-outline-primary box-shadow shadow-sm">
+              <i class="fa fa-chevron-left"></i>
+              Back to {{brand}} {{name}}
+            </button>
+          </router-link>
+          <h3 v-else class="text-muted">New Food</h3>
+        </header>
 
-      <form class="mt-3" @submit.prevent="processForm">
-        <div class="form-group">
-          <label for="brand">Brand</label>
-          <input class="form-control" id="brand" v-model="brand" placeholder="a great brand...">
+        <div v-if="saveError" class="mt-3 alert alert-danger">
+          Oh, man. The save didn't work.
         </div>
 
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input class="form-control" id="name" v-model="name" placeholder="the food name..." required>
-        </div>
+        <form class="mt-3" @submit.prevent="processForm">
+          <div class="form-group">
+            <label for="brand">Brand</label>
+            <input class="form-control" id="brand" v-model="brand" placeholder="a great brand...">
+          </div>
 
-        <div class="form-group">
-          <label for="serving_size">Serving Size</label>
-          <input type="number" step="0.01" min="0" class="form-control" id="serving_size" v-model="servingSize" required>
-        </div>
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input class="form-control" id="name" v-model="name" placeholder="the food name..." required>
+          </div>
 
-        <div class="form-group">
-          <label for="serving_size_unit">Serving Size Unit</label>
-          <select class="form-control" id="serving_size_unit" v-model="servingSizeUnit" required>
-            <option value="" disabled>select...</option>
-            <option value="grams" :selected="isUnitGrams">grams</option>
-            <option value="ounces" :selected="isUnitOunces">ounces</option>
-            <option value="cups" :selected="isUnitCups">cups</option>
-            <option value="tablespoons" :selected="isUnitTablespoons">tablespoons</option>
-            <option value="teaspoons" :selected="isUnitTeaspoons">teaspoons</option>
-            <option value="liters" :selected="isUnitLiters">liters</option>
-            <option value="pieces" :selected="isUnitPieces">pieces</option>
-          </select>
-        </div>
+          <div class="form-group">
+            <label for="serving_size">Serving Size</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="serving_size" v-model="servingSize" required>
+          </div>
 
-        <div class="form-group">
-          <label for="carbs">Carbohydrates</label>
-          <div class="input-group">
-            <input type="number" step="0.01" min="0" class="form-control" id="carbs" v-model="carbs" required>
-            <div class="input-group-append">
-              <span class="input-group-text">grams</span>
+          <div class="form-group">
+            <label for="serving_size_unit">Serving Size Unit</label>
+            <select class="form-control" id="serving_size_unit" v-model="servingSizeUnit" required>
+              <option value="" disabled>select...</option>
+              <option value="grams" :selected="isUnitGrams">grams</option>
+              <option value="ounces" :selected="isUnitOunces">ounces</option>
+              <option value="cups" :selected="isUnitCups">cups</option>
+              <option value="tablespoons" :selected="isUnitTablespoons">tablespoons</option>
+              <option value="teaspoons" :selected="isUnitTeaspoons">teaspoons</option>
+              <option value="liters" :selected="isUnitLiters">liters</option>
+              <option value="pieces" :selected="isUnitPieces">pieces</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="carbs">Carbohydrates</label>
+            <div class="input-group">
+              <input type="number" step="0.01" min="0" class="form-control" id="carbs" v-model="carbs" required>
+              <div class="input-group-append">
+                <span class="input-group-text">grams</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="notes">Notes</label>
-          <textarea class="form-control" id="notes" v-model="notes" placeholder="this text is searchable..."></textarea>
-        </div>
+          <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea class="form-control" id="notes" v-model="notes" placeholder="this text is searchable..."></textarea>
+          </div>
 
-        <button class="btn btn-danger box-shadow shadow-sm" type="submit" :disabled="isProcessing">
-          <span v-if="isProcessing" class="spinner-border spinner-border-sm"></span>
-          <i v-else class="fa fa-floppy-o"></i>
-          Save
-        </button>
-        <div v-if="saveError" class="alert alert-danger mt-3">
-          {{saveError}}
-        </div>
-      </form>
-      <br>
+          <button class="btn btn-danger box-shadow shadow-sm" type="submit" :disabled="isProcessing">
+            <span v-if="isProcessing" class="spinner-border spinner-border-sm"></span>
+            <i v-else class="fa fa-floppy-o"></i>
+            Save
+          </button>
+          <div v-if="saveError" class="alert alert-danger mt-3">
+            {{saveError}}
+          </div>
+        </form>
+        <br>
 
+      </div>
     </div>
   `,
 };
@@ -347,6 +364,7 @@ const FoodDetailPage = {
       updatedAt: 0,
       selectedUnit: '',
       enteredSize: 0,
+      isProcessing: true
     }
   },
   computed: {
@@ -439,6 +457,7 @@ const FoodDetailPage = {
   },
   async created() {
     const food = await getFoodById(this.$route.params.id);
+    this.isProcessing = false;
     // TODO handle errors
     this.id = food.id;
     this.brand = food.brand;
@@ -455,58 +474,67 @@ const FoodDetailPage = {
   },
   template: `
     <div class="container-fluid">
-      <header class="mt-3">
-        <router-link to="/foods">
-          <button class="btn btn-primary box-shadow shadow-sm">
-            <i class="fa fa-chevron-left"></i>
-            Recently Updated
-          </button>
-        </router-link>
-        <router-link :to="'/food/' + id + '/edit'">
-          <button class="btn btn-outline-danger box-shadow shadow-sm">
-            <i class="fa fa-pencil"></i>
-            Edit
-          </button>
-        </router-link>
-      </header>
-
-      <div class="mt-3">
-        <h3>{{name}}</h3>
-        <h4 class="font-weight-lighter text-muted">{{brand}}</h4>
-      </div>
-
-      <div class="list-group">
-        <div class="list-group-item">
-          <div class="input-group">
-            <input id="servingSize" class="form-control" v-model="enteredSize" :placeholder="servingSize">
-            <select id="servingSizeUnit" class="custom-select" v-model="selectedUnit">
-              <option disabled value="">select...</option>
-              <option v-if="isUnitCups" selected value="cups">* cups</option>
-              <option v-if="isUnitCups" value="tablespoons">tablespoons</option>
-              <option v-if="isUnitTablespoons" selected value="tablespoons">* tablespoons</option>
-              <option v-if="isUnitTablespoons" value="teaspoons">teaspoons</option>
-              <option v-if="isUnitTablespoons" value="cups">cups</option>
-              <option v-if="isUnitTeaspoons" selected value="teaspoons">* teaspoons</option>
-              <option v-if="isUnitTeaspoons" value="tablespoons">tablespoons</option>
-              <option v-if="isUnitGrams" selected value="grams">* grams</option>
-              <option v-if="isUnitGrams" value="ounces">ounces</option>
-              <option v-if="isUnitOunces" selected value="ounces">* ounces</option>
-              <option v-if="isUnitOunces" value="grams">grams</option>
-              <option v-if="isUnitPieces" selected value="pieces">* pieces</option>
-            </select>
+      <div v-if="isProcessing" class="text-center">
+        <header class="mt-3">
+          <div class="spinner-border text-info" role="status">
+            <span class="sr-only">Loading...</span>
           </div>
+        </header>
+      </div>
+      <div v-else>
+        <header class="mt-3">
+          <router-link to="/foods">
+            <button class="btn btn-primary box-shadow shadow-sm">
+              <i class="fa fa-chevron-left"></i>
+              Recently Updated
+            </button>
+          </router-link>
+          <router-link :to="'/food/' + id + '/edit'">
+            <button class="btn btn-outline-danger box-shadow shadow-sm">
+              <i class="fa fa-pencil"></i>
+              Edit
+            </button>
+          </router-link>
+        </header>
+
+        <div class="mt-3">
+          <h3>{{name}}</h3>
+          <h4 class="font-weight-lighter text-muted">{{brand}}</h4>
         </div>
-        <div class="list-group-item">
-          <span id="carbs">{{calculatedCarbs}}</span>
-          <span>Carbohydrates</span>
-        </div>
-        <div class="list-group-item">
-          <div class="small text-muted">Notes</div>
-          {{notes}}
-        </div>
-        <div class="list-group-item">
-          <div class="small text-muted">Date Updated</div>
-          {{updatedAt}}
+
+        <div class="list-group">
+          <div class="list-group-item">
+            <div class="input-group">
+              <input id="servingSize" class="form-control" v-model="enteredSize" :placeholder="servingSize">
+              <select id="servingSizeUnit" class="custom-select" v-model="selectedUnit">
+                <option disabled value="">select...</option>
+                <option v-if="isUnitCups" selected value="cups">* cups</option>
+                <option v-if="isUnitCups" value="tablespoons">tablespoons</option>
+                <option v-if="isUnitTablespoons" selected value="tablespoons">* tablespoons</option>
+                <option v-if="isUnitTablespoons" value="teaspoons">teaspoons</option>
+                <option v-if="isUnitTablespoons" value="cups">cups</option>
+                <option v-if="isUnitTeaspoons" selected value="teaspoons">* teaspoons</option>
+                <option v-if="isUnitTeaspoons" value="tablespoons">tablespoons</option>
+                <option v-if="isUnitGrams" selected value="grams">* grams</option>
+                <option v-if="isUnitGrams" value="ounces">ounces</option>
+                <option v-if="isUnitOunces" selected value="ounces">* ounces</option>
+                <option v-if="isUnitOunces" value="grams">grams</option>
+                <option v-if="isUnitPieces" selected value="pieces">* pieces</option>
+              </select>
+            </div>
+          </div>
+          <div class="list-group-item">
+            <span id="carbs">{{calculatedCarbs}}</span>
+            <span>Carbohydrates</span>
+          </div>
+          <div class="list-group-item">
+            <div class="small text-muted">Notes</div>
+            {{notes}}
+          </div>
+          <div class="list-group-item">
+            <div class="small text-muted">Date Updated</div>
+            {{updatedAt}}
+          </div>
         </div>
       </div>
     </div>
