@@ -252,7 +252,11 @@ const FoodEditPage = {
     },
   },
   async created() {
-    if ( !this.$route.params.id ) { return }
+    if ( !this.$route.params.id ) {
+      // New food, so nothing to load
+      this.isProcessing = false;
+      return;
+    }
     const food = await getFoodById(this.$route.params.id);
     this.isProcessing = false;
     // TODO handle errors
