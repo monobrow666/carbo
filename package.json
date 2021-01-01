@@ -2,18 +2,12 @@
   "name": "carbo",
   "version": "1.0.0",
   "description": "Manage nutrition information for carb counting.",
-  "main": "index.js",
+  "main": "app.js",
   "repository": "https://github.com/monobrow666/carbo.git",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node app.js"
   },
   "author": "bowlermc@gmail.com",
-  "license": "ISC",
-  "dependencies": {
-    "body-parser": "^1.18.3",
-    "express": "^4.16.4",
-    "express-handlebars": "^3.0.2",
-    "mongoose": "^5.7.5"
-  }
+  "license": "ISC"
 }
