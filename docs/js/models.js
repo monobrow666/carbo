@@ -82,6 +82,7 @@ function splitField(field) {
   const lowercaseField = field.toLowerCase();
   const separatorRegExp = /[ ,.;:()]+/;
   const values = lowercaseField.split(separatorRegExp);
+  values.push(lowercaseField);
   return values;
 }
 
