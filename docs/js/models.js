@@ -36,13 +36,16 @@ async function searchFoods(term) {
   let foods = [];
 
   const searchRef = await db.collection('foods')
-    .where( 'keywords', 'array-contains', term.toLowerCase().trim() )
-    .orderBy('name')
-    .limit(10)
+    // .where( 'keywords', 'array-contains', term.toLowerCase().trim() )
+    // .orderBy('name')
+    // .limit(10)
     .get();
 
   for ( doc of searchRef.docs ) {
-    foods.push( viewModel(doc) );
+    const data = doc.data();
+    if (data.brand.match(term) || data.name.match(term) || data.notes.match(term)) {
+      foods.push( viewModel(doc) );
+    }
   }
 
   return foods;
