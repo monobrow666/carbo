@@ -43,7 +43,8 @@ async function searchFoods(term) {
 
   for ( doc of searchRef.docs ) {
     const data = doc.data();
-    if (data.brand.match(term) || data.name.match(term) || data.notes.match(term)) {
+    const re = new RegExp(`${term}`, 'gi');
+    if (data.brand.match(re) || data.name.match(re) || data.notes.match(re)) {
       foods.push( viewModel(doc) );
     }
   }
